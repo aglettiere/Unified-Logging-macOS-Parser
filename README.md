@@ -6,6 +6,9 @@ The system.log files (including system.log and the gzipped archived system log f
 ### Overview
 System.log describes issues regarding the computer system, DNS, and networking instances. The file is stored as a .log text file and the old rotated files are stored as gzip files. When the total files hit 50MB, the oldest gets deleted. These files can illuminate important details about the computer's system processes and provide evidence of suspicious activity.
 
+### Compatibility
+The parser supports Python 2.7
+
 ### Usage
 To run the file against your local machine, you can run the following command:
 ```
