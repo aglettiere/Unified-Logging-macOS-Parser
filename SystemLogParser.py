@@ -40,10 +40,9 @@ class table_output:
 				writer = csv.writer(file)
 				writer.writerow(data)
 		elif self.datatype == 'jsn':
-			zipped = dict(zip(self.table_headers, data))
-           	with open(self.data_name, 'a') as file:
-           		json.dump(zipped, file)
-           		file.write('\n')
+			zipped_data = dict(zip(self.table_headers, data))
+			with open(self.data_name, 'a') as file:
+				json.dump(zipped_data, file, indent = 2)
 
 
 def process_input():
