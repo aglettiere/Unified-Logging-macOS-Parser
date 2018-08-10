@@ -13,7 +13,6 @@ import argparse
 import gzip
 import shutil
 
-
 class table_output:
 
 	def __init__(self, name, table_headers, datatype, output_directory = './'):
@@ -103,45 +102,43 @@ def openAndProcessFiles(allLogFiles, newParsedLog):
 		
 		with open(newParsedLog.data_name, 'a') as file:
 			##loop through each line of the log file
-			for index, line in enumerate(logLines):
-				if line[0] != '\t':
-					splitLocation = 0
-					split_0 = line.split(' ')
-					
-					##some of the files have two spaces between the month name and the date, some have one 
-					##this adjustment handles this difference
-					if(split_0[1] == ''):
-						splitLocation += 1
-					
-					date = split_0[0] + " "+ split_0[splitLocation + 1]
-					time = split_0[splitLocation + 2]
-					name = split_0[splitLocation + 3]
-					
-					##checks for lines that are messages indicating previous line repeats
-					if name[0] == '-' and name[1] == '-' and name[2] == '-':
-						repeats = int(split_0[splitLocation + 7])
-						for i in range(repeats):
-							newParsedLog.write_data([date, time, computerName, processName, processID, message])
-						break
-					else:
-						computerName = name
-					
-					processNameandID = split_0[splitLocation + 4]
-					processName = processNameandID.split('[')[0]
-					processID = processNameandID.split('[')[1][:-2]
-					
+			index = 0
+			while index < len(logLines):
+				splitLocation = 0
+				split_bracket = logLines[index].split('[')
+				split_0 = split_bracket[0].split(' ')
+				secondSplit = '['.join(split_bracket[1:])
+				split_1 = secondSplit.split(' ')
+				
+				##some of the files have two spaces between the month name and the date, some have one 
+				##this adjustment handles this difference
+				if(split_0[1] == ''):
+					splitLocation += 1
+				
+				date = split_0[0] + " " + split_0[splitLocation + 1]
+				time = split_0[splitLocation + 2]
+				name = split_0[splitLocation + 3]
+				
+				##checks for lines that are messages indicating previous line repeats
+				if name[0] == '-' and name[1] == '-' and name[2] == '-':
+					for i in range(int(split_0[splitLocation + 7])):
+						newParsedLog.write_data([date, time, computerName, processName, processID, message])
+				else:
+					computerName = name
+					processName = split_0[-1]
+					processID = split_1[0][:-2]
 					##rejoin the words of the message to create the full string
-					string = split_0[splitLocation + 5:]
-					message = ''
-					for word in string:
-						message += word + " "
+					string = split_1[1:]
+					message = ' '.join(string)
 
 					##handle tabbed lines and append to previous message
-					while logLines[index+1][0] == '\t':
+					while ((index+1) < len(logLines)) and (logLines[index+1][0] == '\t'):
 						message += " "+ logLines[index+1][1:]
 						index += 1
 
 					newParsedLog.write_data([date, time, computerName, processName, processID, message])
+		
+				index += 1
 
 				
 if __name__ == "__main__":
